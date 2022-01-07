@@ -7,6 +7,8 @@ exports.checkSources = checkSources;
  
 const fs = require('fs');
 
+const utils = require('./utils.js');
+
 // async function sleep(ms) {
 // 	return new Promise((resolve) => {
 // 		setTimeout(resolve, ms);
@@ -32,7 +34,7 @@ async function checkSources(file, id, client) {
 				let posend = body.indexOf(delimiter);
 				let src = body.substring(0, posend);
 				if (src.length > 200) {
-					console.log('"long";"' + id + '"');
+					utils.log('"long";"' + id + '"');
 				} else if (src.toLowerCase().indexOf('gettyimages') > -1 && src.indexOf('.nsf') == -1) {
 					src = 'https://www.nlfiscaal.nl/imgstock/' + src.substring(src.toLowerCase().indexOf('gettyimages'));
 					urls.push({ id: id, src: src, type: 'img getty' });
@@ -40,9 +42,9 @@ async function checkSources(file, id, client) {
 					src = 'https://www.nlfiscaal.nl/imgstock/' + src.substring(src.toLowerCase().indexOf('thinkstock'));
 					urls.push({ id: id, src: src, type: 'img imgstock' });
 				} else if (src.indexOf('.nsf') > -1) {
-					console.log('"nsf";"' + id + '";"' + src + '"');
+					utils.log('"nsf";"' + id + '";"' + src + '"');
 				} else {
-					// console.log('"' + id + '";"' + src + '"');
+					// utils.log('"' + id + '";"' + src + '"');
 					urls.push({ id: id, src: src, type: 'img src' });
 				}
 				pos = body.indexOf('src=');
@@ -56,11 +58,11 @@ async function checkSources(file, id, client) {
 				let posend = body.indexOf(delimiter);
 				let src = body.substring(0, posend);
 				if (src.length > 200) {
-					console.log('"long";"' + id + '"');
+					utils.log('"long";"' + id + '"');
 				} else if (src.indexOf('.nsf') > -1) {
-					console.log('"nsf";"' + id + '";"' + src + '"');
+					utils.log('"nsf";"' + id + '";"' + src + '"');
 				} else {
-					// console.log('"' + id + '";"' + src + '"');
+					// utils.log('"' + id + '";"' + src + '"');
 					urls.push({ id: id, src: src, type: 'abslink body' });
 				}
 				pos = body.indexOf('abslink=');
@@ -74,7 +76,7 @@ async function checkSources(file, id, client) {
 				let posend = body.indexOf(delimiter);
 				let src = body.substring(0, posend);
 				if (src.length > 200) {
-					console.log('"long";' + id + '"');
+					utils.log('"long";' + id + '"');
 				} else if (src.toLowerCase().indexOf('gettyimages') > -1 && src.indexOf('.nsf') == -1) {
 					src = 'https://www.nlfiscaal.nl/imgstock/' + src.substring(src.toLowerCase().indexOf('gettyimages'));
 					urls.push({ id: id, src: src, type: 'fotolink getty' });
@@ -82,9 +84,9 @@ async function checkSources(file, id, client) {
 					src = 'https://www.nlfiscaal.nl/imgstock/' + src.substring(src.toLowerCase().indexOf('thinkstock'));
 					urls.push({ id: id, src: src, type: 'fotolink imgstock' });
 				} else if (src.indexOf('.nsf') > -1) {
-					console.log('"nsf";"' + id + '";"' + src + '"');
+					utils.log('"nsf";"' + id + '";"' + src + '"');
 				} else {
-					// console.log('"' + id + '";"' + src + '"');
+					// utils.log('"' + id + '";"' + src + '"');
 					urls.push({ id: id, src: src, type: 'fotolink' });
 				}
 				pos = body.indexOf('<fotolink>');
@@ -98,11 +100,11 @@ async function checkSources(file, id, client) {
 				let posend = body.indexOf(delimiter);
 				let src = body.substring(0, posend);
 				if (src.length > 200) {
-					console.log('"long";' + id + '"');
+					utils.log('"long";' + id + '"');
 				} else if (src.indexOf('.nsf') > -1) {
-					console.log('"nsf";"' + id + '";"' + src + '"');
+					utils.log('"nsf";"' + id + '";"' + src + '"');
 				} else {
-					// console.log('"' + id + '";"' + src + '"');
+					// utils.log('"' + id + '";"' + src + '"');
 					urls.push({ id: id, src: src, type: 'abslink' });
 				}
 				pos = body.indexOf('<fotolink>');
@@ -118,11 +120,11 @@ async function checkSources(file, id, client) {
 				if (src == '' || src.substring (0, 1) == '-') {
 					// do nothing
 				} else if (src.length > 200) {
-					console.log('"long";' + id + '"');
+					utils.log('"long";' + id + '"');
 				} else if (src.indexOf('.nsf') > -1) {
-					console.log('"nsf";"' + id + '";"' + src + '"');
+					utils.log('"nsf";"' + id + '";"' + src + '"');
 				} else {
-					// console.log('"' + id + '";"' + src + '"');
+					// utils.log('"' + id + '";"' + src + '"');
 					urls.push({ id: id, src: src, type: 'pdflink' });
 				}
 				pos = body.indexOf('<pdflink>');
@@ -156,14 +158,14 @@ async function checkurls(urls, client) {
 		await client.get(url)
 			.then(function (response) {
 				if (entry.type.substring(0, 7) == 'abslink' || response.data.substring(0, 1) != '<') {
-					console.log('"succes ' + entry.type + '";"' + entry.id + '";"' + url + '"');
+					utils.log('"succes ' + entry.type + '";"' + entry.id + '";"' + url + '"');
 				} else {
-					console.log('"fail to html ' + entry.type + '";"' + entry.id + '";"' + url + '"');
+					utils.log('"fail to html ' + entry.type + '";"' + entry.id + '";"' + url + '"');
 				}
 			})
 			.catch(function () {
 				//console.dir({ error: err }, { depth: 2 });
-				console.log('"fail axios ' + entry.type + '";"' + entry.id + '";"' + url + '"');
+				utils.log('"fail axios ' + entry.type + '";"' + entry.id + '";"' + url + '"');
 			});
 	}
 	// console.log('checkurls done');

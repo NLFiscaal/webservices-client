@@ -7,6 +7,7 @@
 exports.run = run;
 
 const linksCheck = require('./linksCheck.js');
+const utils = require('./utils.js');
 
 // Required modules: http
 const axios = require('axios'); // http client
@@ -164,7 +165,7 @@ async function run() {
 	*/
 	let result = await MEAL(cutoff);
 	if (!(result.r.arEl)) {
-		console.log('"Geen nieuwe documenten";"";""');
+		utils.log('"Geen nieuwe documenten";"";""');
 		return;
 	}
 	
@@ -190,6 +191,4 @@ async function run() {
 
 	settings.PreviousHighestDatetime = settings.PreviousHighestDatetimeTemp;
 	setSettings();
-
-	if (cutoff == 'x') downloadFile('');
 }

@@ -8,4 +8,5 @@ function init() {
 	schedule.scheduleJob ('11 10 * * * *', function () {
 		runner.run();
 	});
+	// console.dir (schedule.scheduledJobs);
 }

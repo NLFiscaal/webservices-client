@@ -4,7 +4,8 @@
   "description": "NLFiscaal Webservice client reference code",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+	"start:dev": "nodemon",
+	"start": "node index.js"
   },
   "author": "J.W.M. Meijer",
   "license": "UNLICENSED",
