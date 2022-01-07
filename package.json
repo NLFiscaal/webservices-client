@@ -1,0 +1,7 @@
+{
+	"scripts": {
+		"start": "npm --prefix ./webservice-client run start",
+		"start:dev": "npm --prefix ./webservice-client run start:dev",
+		"start:doc": "jsdoc -c ./jsdoc-config.json"
+	}
+}

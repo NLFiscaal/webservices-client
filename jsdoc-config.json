@@ -1,0 +1,19 @@
+{
+    "plugins": [],
+    "recurseDepth": 10,
+    "source": {
+		"include": ["webservice-client", "webservice-client/support", "webservice-client/handlers","webservice-client/public/script"],
+        "exclude": ["webservice-client/node_modules"],
+        "includePattern": ".+\\.js(doc|x)?$",
+        "excludePattern": "(^|\\/|\\\\)_"
+    },
+    "sourceType": "module",
+    "tags": {
+        "allowUnknownTags": true,
+        "dictionaries": ["jsdoc","closure"]
+    },
+    "templates": {
+        "cleverLinks": false,
+        "monospaceLinks": false
+    }
+}
