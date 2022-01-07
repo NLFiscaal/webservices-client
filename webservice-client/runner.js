@@ -41,7 +41,7 @@ const xmlParser = new XMLParser(); // parser object
  */
 function getSettings() {
 	try {
-		let result = fs.readFileSync(path.join('..', 'PreviousHighestDatetime.txt'));
+		let result = fs.readFileSync(path.join('..', 'settings.json'));
 		settings = JSON.parse(result);
 	} catch (err) {
 		settings.PreviousHighestDatetime = '1900-01-01T00:00:00Z';
@@ -53,7 +53,7 @@ function getSettings() {
  */
 function setSettings() {
 	try {
-		fs.writeFileSync(path.join('..', 'PreviousHighestDatetime.txt'), JSON.stringify(settings));
+		fs.writeFileSync(path.join('..', 'settings.json'), JSON.stringify(settings));
 	} catch (err) {
 		console.log(err);
 	}

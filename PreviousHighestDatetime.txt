@@ -1,1 +1,0 @@
-{"PreviousHighestDatetime":"2022-01-07T18:45:15Z","PreviousHighestDatetimeTemp":"2022-01-07T18:45:15Z"}
