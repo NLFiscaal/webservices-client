@@ -33,7 +33,9 @@ async function checkSources(file, id, client) {
 				body = body.substring(pos + 5);
 				let posend = body.indexOf(delimiter);
 				let src = body.substring(0, posend);
-				if (src.length > 200) {
+				if (src == '') {
+					// do nothing
+				} else if (src.length > 200) {
 					utils.log('"long";"' + id + '"');
 				} else if (src.toLowerCase().indexOf('gettyimages') > -1 && src.indexOf('.nsf') == -1) {
 					src = 'https://www.nlfiscaal.nl/imgstock/' + src.substring(src.toLowerCase().indexOf('gettyimages'));
@@ -57,7 +59,9 @@ async function checkSources(file, id, client) {
 				body = body.substring(pos + 9);
 				let posend = body.indexOf(delimiter);
 				let src = body.substring(0, posend);
-				if (src.length > 200) {
+				if (src == '') {
+					// do nothing
+				} else if (src.length > 200) {
 					utils.log('"long";"' + id + '"');
 				} else if (src.indexOf('.nsf') > -1) {
 					utils.log('"nsf";"' + id + '";"' + src + '"');
@@ -75,7 +79,9 @@ async function checkSources(file, id, client) {
 				body = body.substring(pos + 10);
 				let posend = body.indexOf(delimiter);
 				let src = body.substring(0, posend);
-				if (src.length > 200) {
+				if (src == '') {
+					// do nothing
+				} else if (src.length > 200) {
 					utils.log('"long";' + id + '"');
 				} else if (src.toLowerCase().indexOf('gettyimages') > -1 && src.indexOf('.nsf') == -1) {
 					src = 'https://www.nlfiscaal.nl/imgstock/' + src.substring(src.toLowerCase().indexOf('gettyimages'));
@@ -99,7 +105,9 @@ async function checkSources(file, id, client) {
 				body = body.substring(pos + 9);
 				let posend = body.indexOf(delimiter);
 				let src = body.substring(0, posend);
-				if (src.length > 200) {
+				if (src == '') {
+					// do nothing
+				} else if (src.length > 200) {
 					utils.log('"long";' + id + '"');
 				} else if (src.indexOf('.nsf') > -1) {
 					utils.log('"nsf";"' + id + '";"' + src + '"');
