@@ -36,7 +36,7 @@ async function checkSources(file, id, client) {
 				if (src == '') {
 					// do nothing
 				} else if (src.length > 200) {
-					utils.log('"long";"' + id + '"');
+					utils.log('"long";"scr=";"' + id + '"');
 				} else if (src.toLowerCase().indexOf('gettyimages') > -1 && src.indexOf('.nsf') == -1) {
 					src = 'https://www.nlfiscaal.nl/imgstock/' + src.substring(src.toLowerCase().indexOf('gettyimages'));
 					urls.push({ id: id, src: src, type: 'img getty' });
@@ -44,10 +44,9 @@ async function checkSources(file, id, client) {
 					src = 'https://www.nlfiscaal.nl/imgstock/' + src.substring(src.toLowerCase().indexOf('thinkstock'));
 					urls.push({ id: id, src: src, type: 'img imgstock' });
 				} else if (src.indexOf('.nsf') > -1) {
-					utils.log('"nsf";"' + id + '";"' + src + '"');
+					utils.log('"nsf";"scr=";"' + id + '";"' + src + '"');
 				} else {
-					// utils.log('"' + id + '";"' + src + '"');
-					urls.push({ id: id, src: src, type: 'img src' });
+					urls.push({ id: id, src: src, type: 'img=' });
 				}
 				pos = body.indexOf('src=');
 			}
@@ -62,12 +61,11 @@ async function checkSources(file, id, client) {
 				if (src == '') {
 					// do nothing
 				} else if (src.length > 200) {
-					utils.log('"long";"' + id + '"');
+					utils.log('"long";"abslink=";"' + id + '"');
 				} else if (src.indexOf('.nsf') > -1) {
-					utils.log('"nsf";"' + id + '";"' + src + '"');
+					utils.log('"nsf";"abslink=";"' + id + '";"' + src + '"');
 				} else {
-					// utils.log('"' + id + '";"' + src + '"');
-					urls.push({ id: id, src: src, type: 'abslink body' });
+					urls.push({ id: id, src: src, type: 'abslink=' });
 				}
 				pos = body.indexOf('abslink=');
 			}
@@ -82,7 +80,7 @@ async function checkSources(file, id, client) {
 				if (src == '') {
 					// do nothing
 				} else if (src.length > 200) {
-					utils.log('"long";' + id + '"');
+					utils.log('"long";"fotolink";' + id + '"');
 				} else if (src.toLowerCase().indexOf('gettyimages') > -1 && src.indexOf('.nsf') == -1) {
 					src = 'https://www.nlfiscaal.nl/imgstock/' + src.substring(src.toLowerCase().indexOf('gettyimages'));
 					urls.push({ id: id, src: src, type: 'fotolink getty' });
@@ -95,7 +93,6 @@ async function checkSources(file, id, client) {
 					// utils.log('"' + id + '";"' + src + '"');
 					urls.push({ id: id, src: src, type: 'fotolink' });
 				}
-				pos = body.indexOf('<fotolink>');
 			}
 
 			body = data;
@@ -108,14 +105,12 @@ async function checkSources(file, id, client) {
 				if (src == '') {
 					// do nothing
 				} else if (src.length > 200) {
-					utils.log('"long";' + id + '"');
+					utils.log('"long";"abslink";' + id + '"');
 				} else if (src.indexOf('.nsf') > -1) {
-					utils.log('"nsf";"' + id + '";"' + src + '"');
+					utils.log('"nsf";"abslink";"' + id + '";"' + src + '"');
 				} else {
-					// utils.log('"' + id + '";"' + src + '"');
 					urls.push({ id: id, src: src, type: 'abslink' });
 				}
-				pos = body.indexOf('<fotolink>');
 			}
 
 			body = data;
@@ -128,14 +123,13 @@ async function checkSources(file, id, client) {
 				if (src == '' || src.substring (0, 1) == '-') {
 					// do nothing
 				} else if (src.length > 200) {
-					utils.log('"long";' + id + '"');
+					utils.log('"long";"pdflink";' + id + '"');
 				} else if (src.indexOf('.nsf') > -1) {
-					utils.log('"nsf";"' + id + '";"' + src + '"');
+					utils.log('"nsf";"pdflink";"' + id + '";"' + src + '"');
 				} else {
 					// utils.log('"' + id + '";"' + src + '"');
 					urls.push({ id: id, src: src, type: 'pdflink' });
 				}
-				pos = body.indexOf('<pdflink>');
 			}
 
 			return urls;
@@ -166,14 +160,14 @@ async function checkurls(urls, client) {
 		await client.get(url)
 			.then(function (response) {
 				if (entry.type.substring(0, 7) == 'abslink' || response.data.substring(0, 1) != '<') {
-					utils.log('"succes ' + entry.type + '";"' + entry.id + '";"' + url + '"');
+					utils.log('"success";"' + entry.type + '";"' + entry.id + '";"' + url + '"');
 				} else {
-					utils.log('"fail to html ' + entry.type + '";"' + entry.id + '";"' + url + '"');
+					utils.log('"fail to html";"' + entry.type + '";"' + entry.id + '";"' + url + '"');
 				}
 			})
 			.catch(function () {
 				//console.dir({ error: err }, { depth: 2 });
-				utils.log('"fail axios ' + entry.type + '";"' + entry.id + '";"' + url + '"');
+				utils.log('"fail axios";"' + entry.type + '";"' + entry.id + '";"' + url + '"');
 			});
 	}
 	// console.log('checkurls done');

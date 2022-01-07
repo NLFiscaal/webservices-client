@@ -116,7 +116,7 @@ async function MEAL(cutoff, last) {
 	//console.log(url);
 	return await client.get(url, headers)
 		.then(response => {
-			//console.log (response.data);
+			// console.log (response.data);
 			let parsedXml = xmlParser.parse(response.data);
 			return (parsedXml.root);
 		});
@@ -134,6 +134,7 @@ async function processResult(manifest) {
 
 
 async function run() {
+	utils.log('"success";"start schedule";"";""');
 	/*
 		var cutoff	; hoogste (laatste) datum-tijd die we de vorige keer hebben opgehaald,
 		; m.a.w., we halen alle documenten NA deze datum-tijd op.
@@ -165,12 +166,19 @@ async function run() {
 	*/
 	let result = await MEAL(cutoff);
 	if (!(result.r.arEl)) {
-		utils.log('"Geen nieuwe documenten";"";""');
+		utils.log('"no docs";"";"";""');
 		return;
 	}
-	
+	if (!Array.isArray(result.r.arEl)) result.r.arEl = new Array (result.r.arEl); // xml parsing to json does not recognise single-element array
+	await processResult(result);
+
+	/*
+		; sla hoogste datum-tijd op in non volatile storage tbv de volgende opvraging
+		if result then
+			set previousHighestDate = result[0].modified
+		fi
+	*/
 	settings.PreviousHighestDatetimeTemp = result.r.arEl[0].modified; // in temp, as we want to only save if there was no crash
-	processResult(result);
 
 	/*
 	; Als er nog meer resultaten zijn….
@@ -185,10 +193,13 @@ async function run() {
 	while (result.laatsteDatumTijd && result.laatsteDatumTijd != '' && result.laatsteDatumTijd >= cutoff) {
 		result = await MEAL(cutoff, result.laatsteDatumTijd);
 		if (result.r.arEl) {
-			processResult(result);
+			await processResult(result);
 		}
 	}
 
 	settings.PreviousHighestDatetime = settings.PreviousHighestDatetimeTemp;
 	setSettings();
+
+	utils.log('"success";"stop schedule";"";""');
+
 }
