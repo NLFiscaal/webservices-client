@@ -6,7 +6,6 @@
 
 exports.run = run;
 
-const linksCheck = require('./linksCheck.js');
 const utils = require('./utils.js');
 
 // Required modules: http
@@ -31,9 +30,11 @@ let headers = { withCredentials: true }; // required to pass on cookies
 const jar = new CookieJar(); // the cookie jar
 const client = wrapper(axios.create({ jar })); // axios with cookies support
 const xmlParser = new XMLParser(); // parser object
+let jobrunning = false;
 
-/**
- * SUPPORT FUNCTIONS
+
+/*
+ * SUPPORT FUNCTIONS **********************************************************
  */
 
 /**
@@ -41,10 +42,15 @@ const xmlParser = new XMLParser(); // parser object
  */
 function getSettings() {
 	try {
-		let result = fs.readFileSync(path.join('..', 'settings.json'));
+		const settingspath = path.join(__dirname, '..', 'settings.json');
+		let result = fs.readFileSync(settingspath);
 		settings = JSON.parse(result);
 	} catch (err) {
-		settings.PreviousHighestDatetime = '1900-01-01T00:00:00Z';
+		settings = {
+			Username: 'webservices@nlfiscaal.nl',
+			Password: 'webservicespassword',
+			PreviousHighestDatetime: '1900-01-01T00:00:00Z'
+		};
 	}
 }
 
@@ -53,51 +59,42 @@ function getSettings() {
  */
 function setSettings() {
 	try {
-		fs.writeFileSync(path.join('..', 'settings.json'), JSON.stringify(settings));
+		const settingspath = path.join(__dirname, '..', 'settings.json');
+		fs.writeFileSync(settingspath, JSON.stringify(settings, null, '\t'));
 	} catch (err) {
 		console.log(err);
 	}
 }
 
-/**
- * https://stackoverflow.com/questions/55374755/node-js-axios-download-file-stream-and-writefile
- * @async
- * @param {*} fileUrl url of the file to fetch
- * @param {*} outputLocationPath path of the file being fetched
- * @return {Promise<boolean>} true
+/*
+ * EXTRA FUNCTIONS POST MANIFEST **********************************************
  */
-async function downloadFile(fileUrl, outputLocationPath) {
-	if (!fileUrl) throw new Error ('lege url');
-	const writer = fs.createWriteStream(outputLocationPath);
 
-	return client({
-		method: 'get',
-		url: fileUrl,
-		responseType: 'stream',
-	}).then(response => {
-		//ensure that the user can call `then()` only when the file has
-		//been downloaded entirely.
-		return new Promise((resolve, reject) => {
-			response.data.pipe(writer);
-			let error = null;
-			writer.on('error', err => {
-				error = err;
-				writer.close();
-				reject(err);
-			});
-			writer.on('close', () => {
-				if (!error) {
-					resolve(true);
-				}
-				//no need to call the reject here, as it will have been called in the 'error' stream;
-			});
-		});
-	});
+/**
+ * Process entry
+ * @async
+ * @param {string} id identification of the file in the log
+ * @param {object} client cookies wrapped axios
+ */
+async function processOneEntry(id) {
+	// do what needs to be done
+	utils.log('"success";"doc";"' + id + '";""');
+	return true;
 }
 
-async function getToken() {
+/*
+ * REFERENCE IMPLEMENTATION ***************************************************
+ */
+
+/**
+ * Retrieves the authentication token from the backend
+ * @param {string} username
+ * @param {string} password
+ * @return {Promise<string} LtpaToken value
+ */
+async function getToken(username, password) {
 	//console.log(qs.stringify({ Username: 'webservices@pwc.com', Password: 'U2v!f$F@' }));
-	return await axios.post(baseUrl + 'login', qs.stringify({ Username: 'webservices@pwc.com', Password: 'U2v!f$F@' }), { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } })
+	return await axios.post(baseUrl + 'login', qs.stringify({ Username: username, Password: password }), { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } })
 		.then(response => {
 			let parsedXml = xmlParser.parse(response.data);
 			return (parsedXml.root.LtpaToken);
@@ -127,18 +124,18 @@ async function processResult(manifest) {
 	for (let i = 0; i < (manifest.r.arEl).length; i++) {
 		const entry = manifest.r.arEl[i];
 		// console.dir (entry);
-		await downloadFile(baseUrl + 'xml/' + entry.link, path.join ('.', 'xml-files', entry.link));
-		await linksCheck.checkSources (path.join ('.', 'xml-files', entry.link), entry.link, client);
+		await processOneEntry(entry.link, client);
 	}
 }
 
-
 async function run() {
+	if (jobrunning) return;
+	jobrunning = true;
 	utils.log('"success";"start schedule";"";""');
 	/*
 		var cutoff	; hoogste (laatste) datum-tijd die we de vorige keer hebben opgehaald,
 		; m.a.w., we halen alle documenten NA deze datum-tijd op.
-
+ 
 		; haal cutoff uit non volatile storage
 		if <we have a previousHighestDatetime> then
 			set cutoff = previousHighestDatetime ; normale werking
@@ -150,8 +147,11 @@ async function run() {
 	let cutoff = settings.PreviousHighestDatetime;
 
 	/* setup authentication */
-	let token = await getToken();
-	if (!token) throw new Error('Geen valide login');
+	let token = await getToken(settings.Username, settings.Password);
+	if (!token) {
+		console.log('Webservice geen valide login, username:' + settings.Username + ', password:' + settings.Password);
+		return;
+	}
 	//console.log('result getToken:' + token);
 	jar.setCookie('LtpaToken=' + token, baseUrl, (err) => { //, cookie
 		if (err) console.dir(err);
@@ -167,9 +167,10 @@ async function run() {
 	let result = await MEAL(cutoff);
 	if (!(result.r.arEl)) {
 		utils.log('"no docs";"";"";""');
+		jobrunning = false;
 		return;
 	}
-	if (!Array.isArray(result.r.arEl)) result.r.arEl = new Array (result.r.arEl); // xml parsing to json does not recognise single-element array
+	if (!Array.isArray(result.r.arEl)) result.r.arEl = new Array(result.r.arEl); // xml parsing to json does not recognise single-element array
 	await processResult(result);
 
 	/*
@@ -201,5 +202,6 @@ async function run() {
 	setSettings();
 
 	utils.log('"success";"stop schedule";"";""');
+	jobrunning = false;
 
 }

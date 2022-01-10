@@ -1,5 +1,5 @@
 const schedule = require('node-schedule');
-const runner = require('./runner.js');
+const runner = require('./webservicecheck.js');
 
 exports.init = init;
 

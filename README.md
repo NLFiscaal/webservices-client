@@ -23,3 +23,13 @@ Referentie implementatie van een webservice client voor de NLFiscaal webservice.
     - Functie-aanroepen van functies uit andere bestanden worden voorzien van het commentaar ` // eslint-disable-line no-undef'`
     - Functie-definities die alleen vanaf externe bestanden aangeroepen worden, worden voorzien van `// eslint-disable-line no-unused-vars`  
 - Zie verder de instellingen in webservice-client\.eslintrc.json
+
+# Configuratie
+Maak een file settings.json in de root van het project. De inhoud is
+```
+{
+	"PreviousHighestDatetime": "2022-01-10T15:10:38Z",
+	"Username": "...",
+	"Password": "..."
+}
+```
